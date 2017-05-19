@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -332,7 +333,13 @@ func (r *marathonClient) buildAPIRequest(method, path string, reader io.Reader) 
 	return request, member, nil
 }
 
+// buildMarathonRequest creates a new HTTP request and configures it according to the *httpClient configuration.
+// The path must not contain a leading "/", otherwise buildMarathonRequest will panic.
 func (rc *httpClient) buildMarathonRequest(method string, member string, path string, reader io.Reader) (request *http.Request, err error) {
+	if strings.HasPrefix(path, "/") {
+		panic(fmt.Sprintf("Path '%s' must not start with a leading slash", path))
+	}
+
 	// Create the endpoint URL
 	url := fmt.Sprintf("%s/%s", member, path)
 
